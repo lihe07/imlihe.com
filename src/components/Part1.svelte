@@ -94,7 +94,7 @@
         display: flex;
         flex-direction: row;
         justify-content: space-between;
-        min-height: 500px;
+        min-height: 100vh;
         align-items: center;
         position: sticky;
         top: 20px;
@@ -115,7 +115,11 @@
             flex-direction: column;
             padding-top: 50px;
             transform: translateY(-20px);
+            height: max-content;
+            min-height: 0;
         }
+
+
 
         .texts {
             text-align: center;

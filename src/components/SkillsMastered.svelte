@@ -1,14 +1,10 @@
 <div class="skills">
     <div class="bg">
-        <p>Python</p>
-        <p>CSS</p>
-        <p>MongoDB</p>
-        <p>RESTFul API</p>
-        <p>HTML</p>
-        <p>Javascript</p>
-        <p>Svelte</p>
-        <p>Vue</p>
-        <p>Kotlin</p>
+        <div class="inner">
+            {#each skills as skill}
+                <p>{skill}</p>
+            {/each}
+        </div>
     </div>
     <div class="skill">
         <img src="/assets/rust.svg" alt="rust logo">
@@ -25,7 +21,49 @@
 </div>
 
 
+<script>
+    import {onMount} from "svelte";
+
+    const skills = [
+        "Python",
+        "CSS",
+        "MongoDB",
+        "RESTFul",
+        "HTML",
+        "Javascript",
+        "Svelte",
+        "Vue",
+        "Kotlin",
+        "Java",
+        "Android",
+    ]
+
+
+    let positioned_skills = []
+
+    function calc_layout() {
+        positioned_skills = skills.map(name => {
+            let x = Math.random() * 95 + 2.5
+            let y = Math.random() * 95 + 2.5
+            return {
+                name,
+                x,
+                y
+            }
+        })
+
+    }
+
+    onMount(() => {
+        calc_layout()
+    })
+</script>
+
 <style>
+    .skill {
+        z-index: 1;
+    }
+
     .skills {
         display: flex;
         flex-direction: row;
@@ -36,6 +74,7 @@
         padding: 0;
         margin: 0;
         min-height: 400px;
+
 
         position: relative;
     }
@@ -62,5 +101,24 @@
         left: 0;
         width: 100%;
         height: 100%;
+        z-index: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .inner {
+        width: 70%;
+        height: 70%;
+        display: grid;
+        
+    }
+
+    p {
+        font-family: var(--font-sans-serif);
+        opacity: 0.5;
+        font-size: 18px;
+        width: max-content;
+        color: var(--frontground)
     }
 </style>

@@ -4,16 +4,20 @@
     import {theme} from "../stores";
 
     import highlight from "highlight.js";
+    import {onMount} from "svelte";
 
     let lang = 0;
     let show_calculated = false;
 
+    const age = new Date().getFullYear() - 2007;
+
     $:code = {
+        // Rust
         0: {
             true:
                 `let me = Person {
     name: "Michael Li",
-    age: 15
+    age: ${age}
 };`,
             false:
                 `let me = Person {
@@ -21,28 +25,68 @@
     age: chrono::offset::Utc::now().naive_utc().year() - 2007,
 };`
         },
+        // Python
         1: {
             true:
                 `me = Person()
-me.name = "Michael Li",
-me.age = 15`,
+me.name = "Michael Li"
+me.age = ${age}`,
             false:
                 `me = Person()
-me.name = "Michael Li",
-me.age = 15`
+me.name = "Michael Li"
+me.age = datetime.datetime.now().year - 2007`
         },
+        // JS
         2: {
             true:
-                `me = {
-    name: "Michael Li",
-    age: 15
-}`,
+                `const me = new Person();
+me.name = "He Li";
+me.age = ${age};`,
             false:
-                `me = {
-    name: "Michael Li",
-    age: chrono::offset::Utc::now().naive_utc().year() - 2007
-}`
+                `const me = new Person();
+me.name = "He Li";
+me.age = new Date().getFullYear() - 2007;`
+
         },
+        // Kotlin
+        3: {
+            true:
+                `val me = Person()
+me.name = "He Li"
+me.age = ${age}`,
+            false:
+                `val me = Person()
+me.name = "He Li"
+me.age = Calendar.getInstance().get(1) - 2007`
+        },
+        // Smali
+        4: {
+            true:
+                `new-instance v0, .../Person;
+invoke-direct {v0}, .../Person;-><init>()V
+
+.local v0, "me":.../Person;
+const-string v1, "He Li"
+iput-object v1, v0, .../Person;->name:Ljava/lang/String;
+
+const/16 v1, 0x${age.toString(16)}
+iput v1, v0, .../Person;->age:I`,
+            false:
+                `new-instance v0, .../Person;
+invoke-direct {v0}, .../Person;-><init>()V
+
+.local v0, "me":.../Person;
+const-string v1, "He Li"
+iput-object v1, v0, .../Person;->name:Ljava/lang/String;
+
+invoke-static {}, Ljava/util/Calendar;->getInstance()Ljava/util/Calendar;
+move-result-object v1
+const/4 v2, 0x1
+invoke-virtual {v1, v2}, Ljava/util/Calendar;->get(I)I
+move-result v1
+add-int/lit16 v1, v1, -0x7d7
+iput v1, v0, .../Person;->age:I`
+        }
     }[lang][show_calculated];
 
     const bg_left = tweened(0, {
@@ -52,19 +96,44 @@ me.age = 15`
 
     $: {
         $bg_left = lang * 70
+        if (timeout !== null) {
+            clearTimeout(timeout)
+        }
         inner = highlight.highlight(code, {
             language: {
                 0: "rust",
                 1: "python",
-                2: "javascript"
+                2: "javascript",
+                3: "kotlin",
+                4: "smali"
             }[lang],
         }).value
     }
 
     let inner;
+
+    const card_height = tweened(220, {
+        duration: 300,
+        easing: cubicInOut
+    });
+    let timeout = null;
+
+
+    let code_dom;
+    onMount(() => {
+        const observer = new ResizeObserver(entries => {
+            card_height.set(code_dom.getBoundingClientRect().height + 50);
+            // card_height
+        })
+        observer.observe(code_dom);
+
+        return () => {
+            observer.disconnect();
+        }
+    })
 </script>
 
-<div class="code-card">
+<div class="code-card" style="height: {$card_height}px">
 
     <div class="tags">
         <div class="bg" style="margin-left: {$bg_left}px"></div>
@@ -77,8 +146,14 @@ me.age = 15`
         <div class="tag" class:active={lang === 2} on:click={() => lang = 2}>
             me.js
         </div>
+        <div class="tag" class:active={lang === 3} on:click={() => lang = 3}>
+            me.kt
+        </div>
+        <div class="tag" class:active={lang === 4} on:click={() => lang = 4}>
+            me.smali
+        </div>
     </div>
-    <div class="code-of-me">
+    <div class="code-of-me" on:click={() => show_calculated = !show_calculated} bind:this={code_dom}>
         <pre class:dark={$theme==="dark"} class:light={$theme==="light"}>{ @html inner }</pre>
     </div>
 </div>
@@ -87,14 +162,15 @@ me.age = 15`
 
     .code-card {
         max-width: 500px;
-        max-height: 500px;
+        /*max-height: 500px;*/
         flex: 1;
         background-color: var(--card-background);
         border-radius: 20px;
         transition: background-color 0.3s ease-in-out;
         height: 100%;
-        min-height: 250px;
+        /*min-height: 250px;*/
         width: max-content;
+        overflow: hidden;
     }
 
     .tags {
@@ -131,6 +207,7 @@ me.age = 15`
 
     .code-of-me {
         padding: 20px 30px 30px;
+        cursor: pointer;
     }
 
     pre {
@@ -145,6 +222,7 @@ me.age = 15`
         white-space: pre-wrap;
     }
 
+
     @media screen and (max-width: 768px) {
         .code-card {
             width: 100%;
@@ -152,6 +230,7 @@ me.age = 15`
             max-height: 100%;
             margin: 0;
             padding: 0;
+            flex: none;
         }
     }
 
