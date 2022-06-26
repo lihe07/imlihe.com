@@ -16,12 +16,12 @@
         0: {
             true:
                 `let me = Person {
-    name: "Michael Li",
+    name: "He Li",
     age: ${age}
 };`,
             false:
                 `let me = Person {
-    name: "Michael Li",
+    name: "He Li",
     age: chrono::offset::Utc::now().naive_utc().year() - 2007,
 };`
         },
@@ -29,11 +29,11 @@
         1: {
             true:
                 `me = Person()
-me.name = "Michael Li"
+me.name = "He Li"
 me.age = ${age}`,
             false:
                 `me = Person()
-me.name = "Michael Li"
+me.name = "He Li"
 me.age = datetime.datetime.now().year - 2007`
         },
         // JS

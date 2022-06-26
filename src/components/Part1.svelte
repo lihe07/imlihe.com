@@ -6,7 +6,7 @@
 <section class="container" id="home">
     <div class="texts">
         <p class="top">Hello! I'm</p>
-        <h1>Michael Li.</h1>
+        <h1>He Li.</h1>
         <p class="about">A 9th grade student, computer rookie and anime fan.</p>
 
         <div class="platforms">
